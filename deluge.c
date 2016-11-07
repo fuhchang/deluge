@@ -208,8 +208,7 @@ init_object(struct deluge_object *obj, char *filename, unsigned version)
   obj->tx_set = 0;
   printf("page size: %d\n", sizeof(*obj->pages));
   printf("page count: %d\n", OBJECT_PAGE_COUNT(*obj));
-  //obj->pages = malloc(OBJECT_PAGE_COUNT(*obj) * sizeof(*obj->pages));
-   obj->pages = malloc(10 * sizeof(*obj->pages));
+  obj->pages = malloc(OBJECT_PAGE_COUNT(*obj) * sizeof(*obj->pages));
   if(obj->pages == NULL) {
     printf("malloc failed\n");
     cfs_close(obj->cfs_fd);
