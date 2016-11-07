@@ -176,7 +176,6 @@ file_size(const char *file)
 {
   int fd;
   cfs_offset_t size;
-  printf("file:%s\n",file);
   fd = cfs_open(file, CFS_READ);
   if(fd < 0) {
     return (cfs_offset_t)-1;
@@ -207,9 +206,12 @@ init_object(struct deluge_object *obj, char *filename, unsigned version)
   obj->current_rx_page = 0;
   obj->nrequests = 0;
   obj->tx_set = 0;
-
-  obj->pages = malloc(OBJECT_PAGE_COUNT(*obj) * sizeof(*obj->pages));
+  printf("page size: %d\n", sizeof(*obj->pages));
+  printf("page count: %d\n", OBJECT_PAGE_COUNT(*obj));
+  //obj->pages = malloc(OBJECT_PAGE_COUNT(*obj) * sizeof(*obj->pages));
+   obj->pages = malloc(10 * sizeof(*obj->pages));
   if(obj->pages == NULL) {
+    printf("malloc failed\n");
     cfs_close(obj->cfs_fd);
     return -1; 
   }
@@ -659,9 +661,11 @@ deluge_disseminate(char *file, unsigned version)
  
   
   if(next_object_id > 0 || init_object(&current_object, file, version) < 0) {
+    printf("init object: %d \n",init_object(&current_object, file, version));
+    printf("next obj: %d\n",next_object_id );
     return -1;
   }
-  
+  printf("beginning protothread\n");
   process_start(&deluge_process, file);
 
   return 0;
@@ -676,7 +680,7 @@ PROCESS_THREAD(deluge_process, ev, data)
   PROCESS_EXITHANDLER(goto exit);
 
   PROCESS_BEGIN();
-  printf("beginning protothread\n");
+  
   deluge_event = process_alloc_event();
 
   broadcast_open(&deluge_broadcast, DELUGE_BROADCAST_CHANNEL, &broadcast_call);
